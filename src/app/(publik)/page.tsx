@@ -70,27 +70,23 @@ export default function BerandaPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(2);
 
-  // Ambil data galeri secara real-time dari Sanity CMS
+ // Ambil data galeri secara real-time melalui API Route internal
   useEffect(() => {
-    async function fetchSanityGallery() {
+    async function fetchGalleryFromApi() {
       try {
         setLoadingGallery(true);
-        const query = `*[_type == "gallery"] | order(_createdAt desc) {
-          _id,
-          title,
-          date,
-          category,
-          "image": image.asset->url
-        }`;
-        const data = await sanityClient.fetch(query);
-        setGalleryItems(data || []);
+        const res = await fetch("/api/gallery");
+        const result = await res.json();
+        if (result.success) {
+          setGalleryItems(result.data || []);
+        }
       } catch (error) {
-        console.error("Gagal mengambil galeri beranda dari Sanity:", error);
+        console.error("Gagal mengambil galeri beranda dari API:", error);
       } finally {
         setLoadingGallery(false);
       }
     }
-    fetchSanityGallery();
+    fetchGalleryFromApi();
   }, []);
 
   useEffect(() => {
